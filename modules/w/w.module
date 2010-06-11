@@ -2,34 +2,50 @@
 // $Id$
 
 define('W_PATH', drupal_get_path('module', 'w'));
+
+/**
+ * Group content-type.
+ */
 define('W_GROUP_NODE_TYPE', 'group');
+
+/**
+ * Group header menu source name.
+ */
 define('W_GROUP_PRIMARY_MENU_SOURCE', 'menu-group-header');
+
+/**
+ * Event-signup node type
+ */
+define('W_EVENT_SIGNUP_NODE_TYPE', 'event_signup');
 
 /**
  * Implements hook_init().
  */
 function w_init() {
+  // Detect group pages
   if ($group_node = og_get_group_context()) {
     // Change primary-links menu source
     global $conf;
     $conf['menu_primary_links_source'] = W_GROUP_PRIMARY_MENU_SOURCE;
+
+    // Context module integration, execute the groupPages condition.
+    if ($plugin = context_get_plugin('condition', 'w_og_pages')) {
+      $plugin->execute($group_node);
+    }
   }
-  
+
+  // Contribution page.
+  // @TODO: Need a better check.
   if ($_GET['q'] === 'node/59/og-panel/1') {
     # drupal_add_js(W_PATH . '/misc/w.contribue.js');
     # drupal_add_css(W_PATH . '/misc/w.contribue.css');
     drupal_add_js(W_PATH . '/misc/w.gift-donation.js');
     drupal_add_css(W_PATH . '/misc/w.gift-donation.css');
   }
+  // Please-donate page.
   elseif ($_GET['q'] === 'please-donate') {
     drupal_add_js(W_PATH . '/misc/w.donations.js');
     drupal_add_css(W_PATH . '/misc/w.donations.css');
-  }
-
-  if ($group_node = og_get_group_context()) {
-    if ($plugin = context_get_plugin('condition', 'w_og_pages')) {
-      $plugin->execute($group_node);
-    }
   }
 }
 
@@ -43,17 +59,24 @@ function w_block($op = 'list', $delta = 0, $edit = array()) {
   }
   elseif ($op === 'view') {
     if ($delta === 'signup') {
-      module_load_include('inc', 'node', 'node.pages');
-      $page_title = drupal_set_title();
-      $output     = node_add('event-signup');
-      drupal_set_title($page_title);
-      
-      return array(
-        'subject' => 'Sign up',
-        'content' => $output,
-      );
+      return w_block_view_event_signup_node_form();
     }
   }
+}
+
+/** 
+ * Render EventSignup node form block.
+ */
+function w_block_view_event_signup_node_form() {
+  module_load_include('inc', 'node', 'node.pages');
+  $page_title = drupal_set_title();
+  $output     = node_add(W_EVENT_SIGNUP_NODE_TYPE);
+  drupal_set_title($page_title);
+
+  return array(
+    'subject' => 'Sign up',
+    'content' => $output,
+  );
 }
 
 /**
@@ -75,6 +98,7 @@ function w_og_links_alter(&$links, $node) {
  * Implements hook_form_alter().
  */
 function w_form_alter(&$form, &$form_state, $form_id) {
+  // Detect node form.
   if ($form['#id'] === 'node-form' && isset($form['#node'])) {
     if (is_numeric($_GET['group'])) {
       $node = node_load($_GET['group']);

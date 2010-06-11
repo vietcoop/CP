@@ -3,6 +3,8 @@
 
 /**
  * Implements hook_update_N().
+ * 
+ * Customize the NodeReferenceURL module variable.
  */
 function w_update_1() {
   $urls = variable_set('nodereference_url_paths', array());
