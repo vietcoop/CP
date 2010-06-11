@@ -1,0 +1,131 @@
+/* $Id$ */
+
+@import url(http://fonts.googleapis.com/css?family=Tangerine);
+
+h1.title {
+  display: none;
+}
+
+div.center-wrapper, div.pane-gift-donation {
+  clear: left;
+}
+
+.wTopText h2.pane-title {
+  font-size: 2em;
+  color: #9E9AB3;
+  padding-right: 25px;
+  float: left;
+}
+
+div.pane-gift-donation h2.pane-title {
+  line-height: 40px;
+  font-size: 2em;
+  color: #9E9AB3;
+}
+
+div.pane-gift-donation div.views-row {
+  width: 475px;
+  height: 105px;
+  clear: left;
+}
+
+div.pane-gift-donation div.views-row .views-field-teaser {
+  font-size: 1.2em;
+  line-height: 25px;
+  color: #48569D;
+}
+
+div.pane-gift-donation div.views-row form {
+  display: none;
+}
+
+div.pane-gift-donation .views-field-title {
+  color: #E09648;
+  font-size: 1.5em;
+}
+
+div.pane-gift-donation .views-field-sell-price {
+  background: url(price-bg.jpg) 50% 50% no-repeat;
+  float: right;
+  font-size: 2.1em;
+  line-height: 80px;
+  width: 115px;
+  text-align: center;
+}
+
+.wGrid {
+  float: left;
+  width: 33.33%;
+}
+
+.wGrid h2.pane-title {
+  line-height: 40px;
+  font-size: 2em;
+  color: #DF928A;
+}
+
+.wGrid h2.pane-title.collapsible {
+  display: inline;
+  background: url(arrow-down.jpg) 98% 50% no-repeat;
+  padding-right: 45px;
+  cursor: pointer;
+  color: #9E9AB3;
+}
+
+.wGrid .node h2.title, 
+.wGrid .node a, 
+.wGrid .node .product-info {
+  display: none;
+}
+
+.wGrid .node form * {
+  display: inline;
+}
+
+div.pane-menu-menu-group-header {
+}
+
+div.pane-menu-menu-group-header ul.menu li {
+  background: url(cc-logo.jpg) 0 50% no-repeat;
+  padding-left: 35px;
+  line-height: 40px;
+}
+
+div.pane-menu-menu-group-header h2.pane-title,
+div.pane-menu-menu-group-header ul.menu li a {
+  font-family: 'Tangerine', serif;
+  font-size: 2.2em;
+  text-shadow: 4px 4px 4px #aaa;
+  color: green;
+}
+
+div.pane-menu-menu-group-header h2.pane-title {
+  font-size: 3em;
+}
+
+div.pane-menu-menu-group-header ul.menu li a#dhtml_menu-2526 {
+  color: red;
+}
+
+div.pane-menu-menu-group-header ul.menu li a#dhtml_menu-2525 {
+  color: orange;
+}
+
+div.pane-menu-menu-group-header ul.menu li a#dhtml_menu-2525 {
+  color: #274CB6;
+}
+
+div.pane-menu-menu-group-header ul.menu li a#dhtml_menu-2524 {
+  color: green;
+}
+
+.wBottomText {
+  font-family: monospace;
+  color: #B36C56;
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.wBottomText span {
+  color: #747194;
+}

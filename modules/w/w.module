@@ -1,0 +1,258 @@
+<?php
+// $Id$
+
+define('W_PATH', drupal_get_path('module', 'w'));
+define('W_GROUP_NODE_TYPE', 'group');
+define('W_GROUP_PRIMARY_MENU_SOURCE', 'menu-group-header');
+
+/**
+ * Implements hook_init().
+ */
+function w_init() {
+  if ($group_node = og_get_group_context()) {
+    // Change primary-links menu source
+    global $conf;
+    $conf['menu_primary_links_source'] = W_GROUP_PRIMARY_MENU_SOURCE;
+  }
+  
+  if ($_GET['q'] === 'node/59/og-panel/1') {
+    # drupal_add_js(W_PATH . '/misc/w.contribue.js');
+    # drupal_add_css(W_PATH . '/misc/w.contribue.css');
+    drupal_add_js(W_PATH . '/misc/w.gift-donation.js');
+    drupal_add_css(W_PATH . '/misc/w.gift-donation.css');
+  }
+  elseif ($_GET['q'] === 'please-donate') {
+    drupal_add_js(W_PATH . '/misc/w.donations.js');
+    drupal_add_css(W_PATH . '/misc/w.donations.css');
+  }
+
+  if ($group_node = og_get_group_context()) {
+    if ($plugin = context_get_plugin('condition', 'w_og_pages')) {
+      $plugin->execute($group_node);
+    }
+  }
+}
+
+/**
+ * Implements hook_block().
+ */
+function w_block($op = 'list', $delta = 0, $edit = array()) {
+  if ($op === 'list') {
+    $blocks['signup']['info'] = '[w] Signup node form';
+    return $blocks;
+  }
+  elseif ($op === 'view') {
+    if ($delta === 'signup') {
+      module_load_include('inc', 'node', 'node.pages');
+      $page_title = drupal_set_title();
+      $output     = node_add('event-signup');
+      drupal_set_title($page_title);
+      
+      return array(
+        'subject' => 'Sign up',
+        'content' => $output,
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_og_links_alter().
+ */
+function w_og_links_alter(&$links, $node) {
+  if (user_access('add content to books') && user_access('create group content')) {
+    $links[] = l(
+      t('Create a sub-group'), 
+      "node/add/" . W_GROUP_NODE_TYPE, 
+      array(
+        'query' => $node->book ? "parent={$node->book['mlid']}" : "group={$node->nid}"
+      )
+    );
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function w_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#id'] === 'node-form' && isset($form['#node'])) {
+    if (is_numeric($_GET['group'])) {
+      $node = node_load($_GET['group']);
+
+      if ($node) {
+        $node->book['bid'] = $node->nid;
+        $node->book['menu_name'] = book_menu_name($node->book['bid']);
+        _book_update_outline($node);
+
+        drupal_goto($_GET['q'], array('parent' => $node->book['mlid']));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function w_theme_registry_alter(&$theme_registry) {
+  $theme_registry['page']['function'] = 'w_page';
+}
+
+/**
+ * Callback function for theme-page.
+ */
+function w_page() {
+  $args = func_get_args();
+  $hook = 'page';
+
+  static $hooks = NULL;
+  if (!isset($hooks)) {
+    init_theme();
+    $hooks = theme_get_registry();
+  }
+
+  // Gather all possible wildcard functions.
+  $meta['wildcards'] = array();
+  if (is_array($hook)) {
+    foreach ($hook as $candidate) {
+      $meta['wildcards'][$candidate] = FALSE;
+      if (isset($hooks[$candidate])) {
+        $meta['wildcards'][$candidate] = TRUE;
+        break;
+      }
+    }
+    $hook = $candidate;
+  }
+
+  // This should not be needed but some users are getting errors. See http://drupal.org/node/209929
+  if (!isset($hooks[$hook])) {
+    return array('', $meta);
+  }
+
+  $info = $hooks[$hook];
+  $meta['hook'] = $hook;
+  $meta['path'] = $info['theme path'];
+
+  // Include a file if the theme function or preprocess function is held elsewhere.
+  if (!empty($info['include files'])) {
+    foreach ($info['include files'] as $include_file) {
+      include_once($include_file);
+    }
+  }
+
+  // Handle compatibility with theme_registry_alters to prevent failures.
+  if (!empty($info['file'])) {
+    static $included_files = array();
+    $include_file = $info['file'];
+    if (!empty($info['path'])) {
+      $include_file = $info['path'] .'/'. $include_file;
+    }
+
+    if (empty($included_files[$include_file])) {
+      // Statically cache files we've already tried to include so we don't
+      // run unnecessary file_exists calls.
+      $included_files[$include_file] = TRUE;
+      if (file_exists('./'. $include_file)) {
+        include_once('./'. $include_file);
+      }
+    }
+  }
+
+  // The theme call is a template.
+  $meta['type'] = 'tpl';
+  $meta['used'] = str_replace($info['theme path'] .'/', '', $info['template']);
+  $variables = array(
+    'template_files' => array()
+  );
+  
+  if (!empty($info['arguments'])) {
+    $count = 0;
+    foreach ($info['arguments'] as $name => $default) {
+      $variables[$name] = isset($args[$count]) ? $args[$count] : $default;
+      $count++;
+    }
+  }
+
+  // default render function and extension.
+  $render_function = 'theme_render_template';
+  $extension = '.tpl.php';
+  
+  if ($group_node = og_determine_context()) {
+    // Disable sidebars
+    $variables['show_blocks'] = FALSE;
+
+    // Do not show messages
+    if ($_GET['q'] === "node/{$group_node->nid}") {
+      unset($_SESSION['messages']['status']);
+    }
+  }
+
+  if (isset($info['preprocess functions']) && is_array($info['preprocess functions'])) {
+    // This construct ensures that we can keep a reference through
+    // call_user_func_array.
+    $args = array(&$variables, $hook);
+    foreach ($info['preprocess functions'] as $preprocess_function) {
+      if (function_exists($preprocess_function)) {
+        call_user_func_array($preprocess_function, $args);
+      }
+    }
+  }
+
+  // Get suggestions for alternate templates out of the variables
+  // that were set. This lets us dynamically choose a template
+  // from a list. The order is FILO, so this array is ordered from
+  // least appropriate first to most appropriate last.
+  $suggestions = array();
+
+  if (isset($variables['template_files'])) {
+    $suggestions = $variables['template_files'];
+  }
+  if (isset($variables['template_file'])) {
+    $suggestions[] = $variables['template_file'];
+  }
+
+  if ($suggestions) {
+    $template_file = drupal_discover_template($info['theme paths'], $suggestions, $extension);
+  }
+
+  if (empty($template_file)) {
+    $template_file = $info['template'] . $extension;
+    if (isset($info['path'])) {
+      $template_file = $info['path'] .'/'. $template_file;
+    }
+  }
+
+  $output = $render_function($template_file, $variables);
+
+  print $output;
+}
+
+/**
+ * Implementation of hook_context_registry().
+ */
+function w_context_registry() {
+  return array(
+    'conditions' => array(
+      'w_og_pages' => array(
+        'title' => 'OG pages',
+        'description' => 'Set this context on og pages.',
+        'plugin' => 'w_context_condition_og_pages',
+      )
+    )
+  );
+}
+
+/**
+ * Implements hook_context_plugins().
+ */
+function w_context_plugins() {
+  $plugins['w_context_condition_og_pages'] = array(
+    'handler' => array(
+      'path' => W_PATH .'/includes/context',
+      'file' => 'w.context-plugins.inc',
+      'class' => 'context_condition_w_og_pages',
+      'parent' => 'context_condition',
+    ),
+  );
+
+  return $plugins;
+}

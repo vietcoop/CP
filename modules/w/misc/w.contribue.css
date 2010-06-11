@@ -1,0 +1,51 @@
+/* $Id$ */
+
+#w-views-content-contribution div.header h3 {
+  background: url(arrow-down.jpg) 98% 50% no-repeat;
+  display: block;
+  float: left;
+  padding: 5px 40px 5px 10px;
+  line-height: 40px;
+  font-size: 2em;
+  color: #9E9AB3;
+}
+
+#w-views-content-contribution div.header h3.active {
+  background: none;
+  color: #DF928A;
+}
+
+#w-views-content-contribution div.content {
+  clear: left;
+}
+
+#w-views-content-contribution div.views-row {
+  width: 475px;
+  height: 105px;
+  clear: left;
+  
+}
+
+#w-views-content-contribution div.views-row .views-field-teaser {
+  font-size: 1.2em;
+  line-height: 25px;
+  color: #48569D;
+}
+
+#w-views-content-contribution div.views-row form {
+  display: none;
+}
+
+#w-views-content-contribution .views-field-title {
+  color: #E7B074;
+  font-size: 1.5em;
+}
+
+#w-views-content-contribution .views-field-sell-price {
+  background: url(price-bg.jpg) 50% 50% no-repeat;
+  float: right;
+  font-size: 2.1em;
+  line-height: 80px;
+  width: 115px;
+  text-align: center;
+}

@@ -1,0 +1,61 @@
+/* $Id$ */
+
+h1.title {display: none;}
+
+td.views-field {
+  vertical-align: top;
+}
+
+.wTopText {
+  padding-bottom: 20px;
+}
+
+.wTopText div.pane-content {
+  font-size: 1.35em;
+}
+
+.wTopText span.author {
+  color: #0F0755;
+  position: relative;
+  top: 10px;
+  left: 30px;
+  white-space: nowrap;
+}
+
+.wTopText2 div.pane-content,
+td.views-field-title p {
+  color: #0F0755;
+}
+
+.wTopText2 h2.pane-title {
+  font-size: 2em;
+  color: #9E9AB3;
+  padding-right: 25px;
+  float: left;
+  line-height: 35px;
+}
+
+.wRightBox {}
+.wRightBox-1 {padding-top: 35px;}
+.wRightBox h2.pane-title {
+  font-size: 2em;
+  color: #DF928A;
+  line-height: 35px;
+}
+.wRightBox h2.pane-title.collapsible {
+  color: #9E9AB3;
+  cursor: pointer;
+  background: url(arrow-down.jpg) 100% 50% no-repeat;
+  padding-right: 35px;
+  display: inline;
+}
+.wRightBox .node h2.title,
+.wRightBox .node .product-info,
+.wRightBox .node a {display: none;}
+.wRightBox .node form * {display: inline;}
+
+.wBottomText {
+  text-align: right;
+  font-size: 2em;
+  color: #9E9AB3;
+}

@@ -1,0 +1,6 @@
+; $Id$
+name = CommonPassion
+version = VERSION
+description = Custom module built for CommonPassion.org website
+core = 6.x
+dependencies[] = og
